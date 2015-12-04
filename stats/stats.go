@@ -120,6 +120,15 @@ type Ratio struct {
 	total    *Counter
 }
 
+func (ratio *Ratio) Add(positive bool) {
+	ratio.Lock()
+	defer ratio.Unlock()
+	if positive {
+		ratio.positive.Add(1)
+	}
+	ratio.total.Add(1)
+}
+
 func (ratio *Ratio) AddPositive() {
 	ratio.Lock()
 	defer ratio.Unlock()

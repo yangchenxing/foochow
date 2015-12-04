@@ -38,6 +38,7 @@ func (writer *TimeRotateWriter) initialize() error {
 			time.Sleep(timestamp.Add(writer.Interval).Sub(time.Now()))
 			writer.rotate(timestamp)
 			writer.clean(timestamp)
+			timestamp = timestamp.Add(writer.Interval)
 		}
 	}()
 	return nil
@@ -60,7 +61,7 @@ func (writer *TimeRotateWriter) rotate(timestamp time.Time) {
 		return
 	}
 	var err error
-	if writer.file, err = os.OpenFile(writer.Path, os.O_WRONLY|os.O_APPEND, 0755); err != nil {
+	if writer.file, err = os.OpenFile(writer.Path, os.O_WRONLY|os.O_CREATE, 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "日志切割出错，打开文件失败: path=%q, error=%q\n",
 			writer.Path, err.Error())
 		return

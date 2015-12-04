@@ -70,6 +70,9 @@ func main() {
 					if err := onlineConn.Close(); err != nil {
 						fmt.Fprintf(os.Stderr, "关闭线上服务连接出错: id=%d, addr=%q, error=%q\n",
 							connID, *onlineServer, err.Error())
+					} else {
+						fmt.Fprintf(os.Stderr, "关闭线上服务连接成功: id=%d, addr=%q\n",
+							connID, *onlineServer)
 					}
 				}()
 				// 转发请求到线上服务器
@@ -141,6 +144,9 @@ func main() {
 					if err := testConn.Close(); err != nil {
 						fmt.Fprintf(os.Stderr, "关闭测试服务连接出错: id=%d, addr=%q, error=%q\n",
 							connID, *testServer, err.Error())
+					} else {
+						fmt.Fprintf(os.Stderr, "关闭测试服务连接成功: id=%d, addr=%q\n",
+							connID, *testServer)
 					}
 				}()
 				// 转发请求到测试服务器
@@ -195,6 +201,9 @@ func main() {
 					}
 					break
 				}
+			}
+			for _, inStream := range inStreams {
+				close(inStream)
 			}
 			for lock := locks.Front(); lock != nil; lock = lock.Next() {
 				lock.Value.(*sync.Mutex).Lock()

@@ -2,12 +2,16 @@ package memcache
 
 import (
 	"container/list"
+	"errors"
 	"sync"
 	"time"
 )
 
 var (
-	noExpiration time.Time
+	noExpiration  time.Time
+	ErrNoCapacity = errors.New("容量为0")
+	ErrNotFound   = errors.New("未找到")
+	ErrExpired    = errors.New("数据过期")
 )
 
 type item struct {
@@ -24,34 +28,37 @@ type Cache struct {
 	queue      *list.List
 }
 
-func (cache *Cache) Get(key string) (interface{}, bool) {
+func (cache *Cache) Size() int {
+	return len(cache.data)
+}
+
+func (cache *Cache) Get(key string) (interface{}, bool, error) {
 	cache.Lock()
 	defer cache.Unlock()
 	if cache.Capacity == 0 {
-		return nil, false
+		return nil, false, ErrNoCapacity
 	}
 	if cache.data == nil {
 		cache.data = make(map[string]*item)
 		cache.queue = list.New()
-		return nil, false
 	}
 	value, found := cache.data[key]
 	if !found {
-		return nil, false
+		return nil, false, ErrNotFound
 	}
 	if value.expiration != noExpiration && value.expiration.Before(time.Now()) {
 		cache.queue.Remove(value.queueLink)
 		delete(cache.data, key)
-		return nil, false
+		return nil, false, ErrExpired
 	}
-	return value.value, found
+	return value.value, found, nil
 }
 
-func (cache *Cache) Set(key string, value interface{}) {
+func (cache *Cache) Set(key string, value interface{}) error {
 	cache.Lock()
 	defer cache.Unlock()
 	if cache.Capacity == 0 {
-		return
+		return ErrNoCapacity
 	}
 	if cache.data == nil {
 		cache.data = make(map[string]*item)
@@ -73,7 +80,9 @@ func (cache *Cache) Set(key string, value interface{}) {
 		if cache.Expiration > 0 {
 			cacheItem.expiration = time.Now().Add(cache.Expiration)
 		}
+		cache.data[key] = cacheItem
 		cache.queue.PushBack(key)
 		cacheItem.queueLink = cache.queue.Back()
 	}
+	return nil
 }

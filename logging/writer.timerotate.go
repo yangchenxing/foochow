@@ -98,6 +98,6 @@ func (writer *TimeRotateWriter) clean(timestamp time.Time) {
 func (writer *TimeRotateWriter) Write(bytes []byte) (int, error) {
 	writer.Lock()
 	defer writer.Unlock()
-
+	defer writer.file.Sync()
 	return writer.file.Write(bytes)
 }

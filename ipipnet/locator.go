@@ -31,6 +31,13 @@ type ipIndex struct {
 	checksum string
 }
 
+type IPIPNetConfig struct {
+	IDsPath       string
+	DataPath      string
+	DataURL       string
+	CheckInterval time.Duration
+}
+
 var (
 	config struct {
 		idsPath       string
@@ -48,11 +55,11 @@ var (
 	UnknownISPCallback   func(string)
 )
 
-func Initialize(idsPath, dataPath, dataURL string, checkInterval time.Duration) error {
-	config.idsPath = idsPath
-	config.dataPath = dataPath
-	config.dataURL = dataURL
-	config.checkInterval = checkInterval
+func Initialize(conf IPIPNetConfig) error {
+	config.idsPath = conf.IDsPath
+	config.dataPath = conf.DataPath
+	config.dataURL = conf.DataURL
+	config.checkInterval = conf.CheckInterval
 	if err := loadIDs(); err != nil {
 		return err
 	}

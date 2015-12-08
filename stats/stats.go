@@ -49,10 +49,10 @@ func (counter *Counter) Get(duration time.Duration) float64 {
 	return sum
 }
 
-func NewAverager(name string) *Averager {
+func NewAverager(name, sumName, countName string) *Averager {
 	averager := &Averager{
-		sum:   NewCounter(""),
-		count: NewCounter(""),
+		sum:   NewCounter(sumName),
+		count: NewCounter(countName),
 	}
 	registerItem(name, averager)
 	return averager
@@ -105,10 +105,10 @@ func (averager *Averager) GetCount(duration time.Duration) uint64 {
 	return uint64(averager.count.Get(duration))
 }
 
-func NewRatio(name string) *Ratio {
+func NewRatio(name, positiveName, totalName string) *Ratio {
 	ratio := &Ratio{
-		positive: NewCounter(""),
-		total:    NewCounter(""),
+		positive: NewCounter(positiveName),
+		total:    NewCounter(totalName),
 	}
 	registerItem(name, ratio)
 	return ratio
@@ -176,9 +176,9 @@ func (ratio *Ratio) GetTotal(duration time.Duration) uint64 {
 	return uint64(ratio.total.Get(duration))
 }
 
-func NewFrequency(name string) *Frequency {
+func NewFrequency(name, counterName string) *Frequency {
 	frequency := &Frequency{
-		Counter: NewCounter(""),
+		Counter: NewCounter(counterName),
 	}
 	registerItem(name, frequency)
 	return frequency

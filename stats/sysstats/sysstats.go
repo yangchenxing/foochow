@@ -20,7 +20,7 @@ func AddSysStats(prefix string, interval time.Duration) {
 	pauseTotalNs := stats.NewValue(prefix + "PauseTotalNs")
 	lastPauseNs := stats.NewValue(prefix + "LastPauseNs")
 	numGC := stats.NewValue(prefix + "NumGC")
-	gcCPUFraction := stats.NewValue(prefix + "GCCPUFraction")
+	// gcCPUFraction := stats.NewValue(prefix + "GCCPUFraction")
 
 	go func() {
 		now := time.Now()
@@ -40,7 +40,7 @@ func AddSysStats(prefix string, interval time.Duration) {
 			pauseTotalNs.Set(float64(memStats.PauseTotalNs))
 			lastPauseNs.Set(float64(memStats.PauseNs[(memStats.NumGC+255)%256]))
 			numGC.Set(float64(memStats.NumGC))
-			gcCPUFraction.Set(float64(memStats.GCCPUFraction))
+			// gcCPUFraction.Set(float64(memStats.GCCPUFraction))
 
 			time.Sleep(interval)
 		}

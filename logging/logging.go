@@ -18,6 +18,8 @@ var (
 	handlers    = make(map[string][]*Handler)
 )
 
+type Logger func(level, pattern string, args ...interface{})
+
 func init() {
 	// 获取GOPATH
 	_, file, _, _ := runtime.Caller(0)

@@ -70,7 +70,7 @@ func (cache *Cache) Set(key string, value interface{}) error {
 			cacheItem.expiration = time.Now().Add(cache.Expiration)
 		}
 	} else {
-		if cache.queue.Len() == int(cache.Capacity) {
+		for cache.queue.Len() >= int(cache.Capacity) {
 			delete(cache.data, cache.queue.Front().Value.(string))
 			cache.queue.Remove(cache.queue.Front())
 		}

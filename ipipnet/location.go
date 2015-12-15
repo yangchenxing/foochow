@@ -22,7 +22,7 @@ type Location struct {
 	ISPs     []*ISP `json:"isps"`
 }
 
-func (location Location) String() string {
+func (location *Location) String() string {
 	items := make([]string, 0, 4)
 	if location.Country != nil {
 		items = append(items, fmt.Sprintf("%s(%d)", location.Country.Name, location.Country.ID))
@@ -39,55 +39,70 @@ func (location Location) String() string {
 	return strings.Join(items, "/")
 }
 
-func (location Location) GetCountryID() uint64 {
-	if location.Country != nil {
+func (location *Location) GetCountryID() uint64 {
+	if location == nil {
+		return 0
+	} else if location.Country != nil {
 		return location.Country.ID
 	} else {
 		return 0
 	}
 }
 
-func (location Location) GetCountryName() string {
-	if location.Country != nil {
+func (location *Location) GetCountryName() string {
+	if location == nil {
+		return ""
+	} else if location.Country != nil {
 		return location.Country.Name
 	} else {
 		return ""
 	}
 }
 
-func (location Location) GetProvinceID() uint64 {
-	if location.Province != nil {
+func (location *Location) GetProvinceID() uint64 {
+	if location == nil {
+		return 0
+	} else if location.Province != nil {
 		return location.Province.ID
 	} else {
 		return 0
 	}
 }
 
-func (location Location) GetProvinceName() string {
-	if location.Province != nil {
+func (location *Location) GetProvinceName() string {
+	if location == nil {
+		return ""
+	} else if location.Province != nil {
 		return location.Province.Name
 	} else {
 		return ""
 	}
 }
 
-func (location Location) GetCityID() uint64 {
-	if location.City != nil {
+func (location *Location) GetCityID() uint64 {
+	if location == nil {
+		return 0
+	} else if location.City != nil {
 		return location.City.ID
 	} else {
 		return 0
 	}
 }
 
-func (location Location) GetCityName() string {
-	if location.City != nil {
+func (location *Location) GetCityName() string {
+	if location == nil {
+		return ""
+	} else if location.City != nil {
 		return location.City.Name
 	} else {
 		return ""
 	}
 }
 
-func (location Location) GetISPIDs() []uint64 {
+func (location *Location) GetISPIDs() []uint64 {
+	if location == nil {
+		return nil
+	}
 	ids := make([]uint64, len(location.ISPs))
 	for i, isp := range location.ISPs {
 		ids[i] = isp.ID
@@ -95,7 +110,10 @@ func (location Location) GetISPIDs() []uint64 {
 	return ids
 }
 
-func (location Location) GetISPNames() []string {
+func (location *Location) GetISPNames() []string {
+	if location == nil {
+		return nil
+	}
 	names := make([]string, len(location.ISPs))
 	for i, isp := range location.ISPs {
 		names[i] = isp.Name

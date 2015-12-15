@@ -18,7 +18,7 @@ var (
 	handlers    = make(map[string][]*Handler)
 )
 
-type Logger func(level, pattern string, args ...interface{})
+type Logger func(skip int, level, pattern string, args ...interface{})
 
 func init() {
 	// 获取GOPATH

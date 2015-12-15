@@ -118,12 +118,14 @@ func unmarshalBool(dest, src reflect.Value) error {
 	switch src.Kind() {
 	case reflect.Bool:
 		dest.SetBool(src.Bool())
+		return nil
 	case reflect.String:
-		if boolean, err := strconv.ParseBool(src.String()); err != nil {
+		boolean, err := strconv.ParseBool(src.String())
+		if err != nil {
 			return fmt.Errorf("invalid bool text: %s", src.String())
-		} else {
-			dest.SetBool(boolean)
 		}
+		dest.SetBool(boolean)
+		return nil
 	}
 	return badtype("bool/string", src)
 }
@@ -212,6 +214,21 @@ func unmarshalArray(dest, src reflect.Value) error {
 }
 
 func unmarshalInterface(dest, src reflect.Value) error {
+	// 当出现无效值或者nil时，将目标复制为nil
+	switch src.Kind() {
+	case reflect.Interface, reflect.Chan, reflect.Map, reflect.Slice, reflect.Ptr:
+		if !src.IsValid() || src.IsNil() {
+			dest.Set(reflect.Zero(dest.Type()))
+			return nil
+		}
+	case reflect.Invalid:
+		dest.Set(reflect.Zero(dest.Type()))
+		return nil
+	}
+	if dest.Type().NumMethod() == 0 {
+		dest.Set(src)
+		return nil
+	}
 	if data, ok := src.Interface().(map[string]interface{}); !ok {
 		return badtype("map[string]interface{}", src)
 	} else if instance, err := CreateByFactory(dest.Type(), data); err != nil {
@@ -281,8 +298,8 @@ func unmarshalStruct(dest, src reflect.Value) error {
 		field := typ.Field(i)
 		if field.Anonymous {
 			if err := unmarshal(dest.Field(i), src); err != nil {
-				return fmt.Errorf("unmarshal anonymous field %q fail: %s",
-					field.Name, err.Error())
+				return fmt.Errorf("解析匿名字段%q出错: type=%q, error=%q",
+					field.Name, typ, err.Error())
 			}
 			continue
 		}

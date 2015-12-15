@@ -97,6 +97,30 @@ func NewBuffer(config InfluxStatsConfig, errorCallback func(error), submitCallba
 	return buffer, nil
 }
 
+func (buffer *Buffer) AddFloat(measurement string, tags *Tags, name string, value float64) {
+	if buffer != nil {
+		buffer.items.AddFloat(measurement, tags, name, value)
+	}
+}
+
+func (buffer *Buffer) AddInt(measurement string, tags *Tags, name string, value int64) {
+	if buffer != nil {
+		buffer.items.AddInt(measurement, tags, name, value)
+	}
+}
+
+func (buffer *Buffer) SetFloat(measurement string, tags *Tags, name string, value float64) {
+	if buffer != nil {
+		buffer.items.SetFloat(measurement, tags, name, value)
+	}
+}
+
+func (buffer *Buffer) SetInt(measurement string, tags *Tags, name string, value int64) {
+	if buffer != nil {
+		buffer.items.SetInt(measurement, tags, name, value)
+	}
+}
+
 func (buffer *Buffer) NewTransaction() *Transaction {
 	if buffer == nil {
 		return nil

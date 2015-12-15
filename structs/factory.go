@@ -62,21 +62,21 @@ func (factory *GeneralInterfaceFactory) GetInstanceType() reflect.Type {
 
 func (factory *GeneralInterfaceFactory) Create(data map[string]interface{}) (interface{}, error) {
 	var instance interface{}
-	if typeName, ok := data[factory.typeKey].(string); ok || typeName == "" {
-		return nil, fmt.Errorf("missing type name: key=%q", factory.typeKey)
+	if typeName, ok := data[factory.typeKey].(string); !ok || typeName == "" {
+		return nil, fmt.Errorf("缺少类型字段: key=%q, map=%v", factory.typeKey, data)
 	} else if instanceType, found := factory.types[typeName]; !found {
-		return nil, fmt.Errorf("unknown type: %q", typeName)
+		return nil, fmt.Errorf("未知类型: %q", typeName)
 	} else if instanceType.Kind() == reflect.Ptr {
-		instance = reflect.New(instanceType.Elem())
+		instance = reflect.New(instanceType.Elem()).Interface()
 	} else {
-		instance = reflect.New(instanceType)
+		instance = reflect.New(instanceType).Interface()
 	}
 	if err := UnmarshalMap(instance, data); err != nil {
-		return nil, fmt.Errorf("unmarshal map fail: %s", err.Error())
+		return nil, fmt.Errorf("解析Map出错: %s", err.Error())
 	}
 	if factory.initializer != nil {
 		if err := factory.initializer(instance); err != nil {
-			return nil, fmt.Errorf("initialize instance fail: %s", err.Error())
+			return nil, fmt.Errorf("初始化实例出错: %s", err.Error())
 		}
 	}
 	return instance, nil

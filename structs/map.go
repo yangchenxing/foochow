@@ -37,6 +37,9 @@ var (
 		time.StampMicro,  // "Jan _2 15:04:05.000000"
 		time.StampNano,   // "Jan _2 15:04:05.000000000"
 	}
+
+	valueTrue  = reflect.ValueOf(true)
+	valueFalse = reflect.ValueOf(false)
 )
 
 func LoadMap(path string, loader func(string) (map[string]interface{}, error), includeKey string) (map[string]interface{}, error) {
@@ -240,6 +243,9 @@ func unmarshalInterface(dest, src reflect.Value) error {
 }
 
 func unmarshalMap(dest, src reflect.Value) error {
+	if src.Kind() == reflect.Slice && dest.Type().Elem().Kind() == reflect.Bool {
+		return unmarshalSet(dest, src)
+	}
 	if src.Kind() != reflect.Map {
 		return badtype("map", src)
 	}
@@ -260,6 +266,21 @@ func unmarshalMap(dest, src reflect.Value) error {
 				srcKey.Interface(), err.Error())
 		}
 		dest.SetMapIndex(destKey, destValue)
+	}
+	return nil
+}
+
+func unmarshalSet(dest, src reflect.Value) error {
+	if dest.IsNil() {
+		dest.Set(reflect.MakeMap(dest.Type()))
+	}
+	keyType := dest.Type().Key()
+	for i := 0; i < src.Len(); i++ {
+		destKey := reflect.New(keyType).Elem()
+		if err := unmarshal(destKey, src.Index(i)); err != nil {
+			return fmt.Errorf("unmarshal set item [%d] error: %s", i, err.Error())
+		}
+		dest.SetMapIndex(destKey, valueTrue)
 	}
 	return nil
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/influxdb/influxdb/client/v2"
 )
 
-type InfluxStatsConfig struct {
+type Config struct {
 	HTTPConfig client.HTTPConfig
 	DB         string
 	Interval   time.Duration
@@ -56,6 +56,34 @@ func (transaction *Transaction) SetInt(measurement string, tags *Tags, name stri
 	}
 }
 
+type MeasurementTags struct {
+	measurement string
+	tags        *Tags
+}
+
+func NewMeasurementTags(measurement string, tags ...string) *MeasurementTags {
+	return &MeasurementTags{
+		measurement: measurement,
+		tags:        NewTags(tags...),
+	}
+}
+
+func (mt *MeasurementTags) AddInt(tx *Transaction, name string, value int64) {
+	tx.AddInt(mt.measurement, mt.tags, name, value)
+}
+
+func (mt *MeasurementTags) AddFloat(tx *Transaction, name string, value float64) {
+	tx.AddFloat(mt.measurement, mt.tags, name, value)
+}
+
+func (mt *MeasurementTags) SetInt(tx *Transaction, name string, value int64) {
+	tx.SetInt(mt.measurement, mt.tags, name, value)
+}
+
+func (mt *MeasurementTags) SetFloat(tx *Transaction, name string, value float64) {
+	tx.SetFloat(mt.measurement, mt.tags, name, value)
+}
+
 type Buffer struct {
 	client         client.Client
 	db             string
@@ -68,7 +96,7 @@ type Buffer struct {
 	submitTicker   chan time.Time
 }
 
-func NewBuffer(config InfluxStatsConfig, errorCallback func(error), submitCallback func(ItemSet)) (*Buffer, error) {
+func NewBuffer(config Config, errorCallback func(error), submitCallback func(ItemSet)) (*Buffer, error) {
 	client, err := client.NewHTTPClient(config.HTTPConfig)
 	if err != nil {
 		return nil, fmt.Errorf("创建InfluxDB客户端出错: %s", err.Error())

@@ -31,7 +31,7 @@ type ipIndex struct {
 	checksum string
 }
 
-type IPIPNetConfig struct {
+type Config struct {
 	IDsPath       string
 	DataPath      string
 	DataURL       string
@@ -55,7 +55,7 @@ var (
 	UnknownISPCallback   func(string)
 )
 
-func Initialize(conf IPIPNetConfig) error {
+func Initialize(conf Config) error {
 	config.idsPath = conf.IDsPath
 	config.dataPath = conf.DataPath
 	config.dataURL = conf.DataURL
@@ -124,7 +124,7 @@ func loadData() error {
 	}
 	newIndex.checksum = fmt.Sprintf("%x", sha1.Sum(data))
 	index = newIndex
-	logging.Debug("加载IPIP.net数据完成: checksum=%s", index.checksum)
+	logging.Info("加载IPIP.net数据完成: checksum=%s", index.checksum)
 	return nil
 }
 

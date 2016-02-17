@@ -3,6 +3,7 @@ package logging
 import (
 	"bytes"
 	"container/list"
+	"encoding/base64"
 	"fmt"
 	"net/smtp"
 	"os"
@@ -42,7 +43,7 @@ func (writer *EMailWriter) initialize() {
 			fmt.Fprintf(&buf, "From: %s\r\nTo: %s\r\nSubject: %s\r\nContent-Type: text/plain; charset=UTF-8\r\n",
 				writer.Sender,
 				strings.Join(writer.Receivers, ","),
-				writer.Subject)
+				"=?utf-8?B?"+base64.StdEncoding.EncodeToString([]byte(writer.Subject))+"?=")
 			for elem := messages.Front(); elem != nil; elem = elem.Next() {
 				buf.Write(elem.Value.([]byte))
 			}
